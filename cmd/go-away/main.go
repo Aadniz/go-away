@@ -8,12 +8,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"git.gammaspectra.live/git/go-away/lib"
-	"git.gammaspectra.live/git/go-away/lib/policy"
-	"git.gammaspectra.live/git/go-away/lib/settings"
-	"git.gammaspectra.live/git/go-away/utils"
-	"github.com/goccy/go-yaml"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log/slog"
 	"net/http"
 	"net/http/pprof"
@@ -24,6 +18,13 @@ import (
 	"runtime/debug"
 	"strings"
 	"syscall"
+
+	"git.gammaspectra.live/git/go-away/lib"
+	"git.gammaspectra.live/git/go-away/lib/policy"
+	"git.gammaspectra.live/git/go-away/lib/settings"
+	"git.gammaspectra.live/git/go-away/utils"
+	"github.com/goccy/go-yaml"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var internalCmdName = "go-away"
