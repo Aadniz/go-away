@@ -34,7 +34,7 @@ main {
 
 body {
     background: #1f2128;
-    color: #fff;
+    color: #fbf7f7;
 }
 
 pre {
@@ -66,12 +66,18 @@ blockquote {
 }
 
 footer {
-    text-align: center;
+    position: absolute;
+    bottom: 0;
+    right: 8px;
+}
+
+.text-muted {
+    color: #6d6d6f;
 }
 
 @media (prefers-color-scheme: light) {
     body {
-        background: #fff;
+        background: #fbf7f7;
         color: #1f2128;
     }
 

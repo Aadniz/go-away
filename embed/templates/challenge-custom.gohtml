@@ -18,14 +18,10 @@
 </head>
 <body id="top">
 <main>
-    <center>
-        <h1 id="title" class=".centered-div">{{ .Title }}</h1>
-    </center>
-
     <div class="centered-div">
         <img
                 id="image"
-                style="width:100%;max-width:256px;"
+                style="width:100%;max-width:384px;"
                 src="{{ $logo }}"
         />
         {{if .Challenge }}
@@ -39,6 +35,8 @@
             <summary>{{ .Strings.Get "details_title" }}</summary>
 
             {{.Strings.Get "details_text"}}
+
+            <p><small>{{ .Strings.Get "details_contact_admin_with_request_id" }}: <em>{{ .Id }}</em></small></p>
         </details>
 
         {{if .Redirect }}
@@ -50,21 +48,17 @@
                 {{ .Strings.Get "noscript_warning" }}
             </noscript>
         {{end}}
-
-        <p><small>{{ .Strings.Get "details_contact_admin_with_request_id" }}: <em>{{ .Id }}</em></small></p>
     </div>
 
 
     <footer>
-        <center>
-            <p>
-                Protected by <a href="https://git.gammaspectra.live/git/go-away">go-away</a> :: Request Id <em>{{ .Id }}</em>
+        <div class="text-muted">
+            Protected by <a href="https://git.gammaspectra.live/git/go-away">go-away</a> :: Request Id <em>{{ .Id }}</em>
 
-                {{ range .Links }}
-                    :: <a href="{{ .URL }}">{{ .Name }}</a>
-                {{ end }}
-            </p>
-        </center>
+            {{ range .Links }}
+                :: <a href="{{ .URL }}">{{ .Name }}</a>
+            {{ end }}
+        </div>
     </footer>
 
 
