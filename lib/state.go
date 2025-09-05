@@ -1,22 +1,15 @@
 package lib
 
 import (
-	http_cel "codeberg.org/gone/http-cel"
 	"crypto/ed25519"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"git.gammaspectra.live/git/go-away/lib/challenge"
-	"git.gammaspectra.live/git/go-away/lib/policy"
-	"git.gammaspectra.live/git/go-away/lib/settings"
-	"git.gammaspectra.live/git/go-away/utils"
-	"github.com/google/cel-go/cel"
-	"github.com/google/cel-go/common/types"
-	"github.com/yl2chen/cidranger"
-	"golang.org/x/net/html"
+	"html/template"
 	"log/slog"
+	"maps"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -26,6 +19,16 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	http_cel "codeberg.org/gone/http-cel"
+	"git.gammaspectra.live/git/go-away/lib/challenge"
+	"git.gammaspectra.live/git/go-away/lib/policy"
+	"git.gammaspectra.live/git/go-away/lib/settings"
+	"git.gammaspectra.live/git/go-away/utils"
+	"github.com/google/cel-go/cel"
+	"github.com/google/cel-go/common/types"
+	"github.com/yl2chen/cidranger"
+	"golang.org/x/net/html"
 )
 
 type State struct {
@@ -51,6 +54,8 @@ type State struct {
 	close chan struct{}
 
 	tagCache *utils.DecayMap[string, []html.Node]
+
+	templates map[string]*template.Template
 
 	Mux *http.ServeMux
 }
@@ -105,11 +110,14 @@ func NewState(p policy.Policy, opt settings.Settings, settings policy.StateSetti
 	fp := sha256.Sum256(state.privateKey)
 	state.privateKeyFingerprint = fp[:]
 
-	if templates["challenge-"+state.opt.ChallengeTemplate+".gohtml"] == nil {
+	state.templates = make(map[string]*template.Template)
+	maps.Copy(state.templates, globalTemplates)
+
+	if state.templates["challenge-"+state.opt.ChallengeTemplate+".gohtml"] == nil {
 
 		if data, err := os.ReadFile(state.opt.ChallengeTemplate); err == nil && len(data) > 0 {
 			name := path.Base(state.opt.ChallengeTemplate)
-			err := initTemplate(name, string(data))
+			err := initTemplate(state.templates, name, string(data))
 			if err != nil {
 				return nil, fmt.Errorf("error loading template %s: %w", state.opt.ChallengeTemplate, err)
 			}
@@ -117,6 +125,8 @@ func NewState(p policy.Policy, opt settings.Settings, settings policy.StateSetti
 		} else {
 			return nil, fmt.Errorf("no template defined for %s", state.opt.ChallengeTemplate)
 		}
+	} else {
+		state.opt.ChallengeTemplate = "challenge-" + state.opt.ChallengeTemplate + ".gohtml"
 	}
 
 	state.networks = make(map[string]func() cidranger.Ranger)
