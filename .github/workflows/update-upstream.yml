@@ -1,0 +1,46 @@
+name: Auto Merge Fork
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  merge:
+    runs-on: 'self-hosted'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - id: checkoutRepo
+        name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: confGit
+        name: Configure git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - id: checkUpstream
+        name: Check if remote upstream is already added
+        run: git remote -v | grep -q upstream || echo "upstream_missing=true" >> $GITHUB_OUTPUT
+
+      - id: addUpstream
+        name: Add upstream remote
+        if: steps.checkUpstream.outputs.upstream_missing  == 'true'
+        run: git remote add upstream https://github.com/WeebDataHoarder/go-away.git
+
+      - id: fetchUpstream
+        name: Fetch upstream changes
+        run: git fetch upstream
+
+      - id: mergeUpstream
+        name: Merge upstream changes
+        run: git merge upstream/master
+
+      - id: pushChanges
+        name: Push changes
+        run: git push origin master
